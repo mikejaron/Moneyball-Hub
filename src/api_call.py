@@ -1,3 +1,8 @@
+import csv
+import json
+import requests
+import pprint
+
 def scroll_paginated_query(url, query, page_size=limit, params=None, retry_count_on_fail=3):
     """
     INPUT: url=string of apit to query, query=ealsticsearch string, page_size=integer
