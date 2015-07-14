@@ -3,13 +3,12 @@ import json
 import requests
 import pprint
 
-def scroll_paginated_query(url, query, page_size=limit, params=None, retry_count_on_fail=3):
+def scroll_paginated_query(query, url, page_size=3000, params=None, retry_count_on_fail=3):
     """
     INPUT: url=string of apit to query, query=ealsticsearch string, page_size=integer
     OUTPUT: This is the main funtion to query the api, and split it into pages to make things
     easier.
-    """
-
+    """ 
     # initialize
     url = url + "?scroll=10m&size=%s" % page_size
     scroll_id = None
@@ -100,14 +99,17 @@ def scroll_paginated_query(url, query, page_size=limit, params=None, retry_count
         yield results_page
 
 
-def get_info_on_sentences_with_a_tag(query, search_url, save_directory):
+def get_info_on_sentences_with_a_tag(tag='130', begin_date='2015-01-01', end_date='2015-02-01', search_url="http://104.197.14.37/api/v1/sentences/dd/search", save_directory='.'):
     """
     INPUT: query=elasticsearch string, search_url=url of api string, save_directory=string
     OUTPUT: This calls previous function and gets the json from that, parses it and saves it
     to a csv
     """
+
+    query = r'{"query": {"filtered": {"filter":{"range":{"timestamp":{"gt":'+'"'+begin_date+'"'+', "lt":'+'"'+end_date+'"'+'}}}, "query": {"filtered": {"filter": { "term": { "tags": '+tag+' }}}} }}}'
+    
     print search_url
-    for page in scroll_paginated_query(search_url, query):
+    for page in scroll_paginated_query(query=query, url=search_url):
     #     for page in scroll_paginated_query(doc_search_url, query):
         main_source1 = [hit['_source']["source"] for hit in page['hits']['hits']]
         id = [hit['_source']["_id"] for hit in page['hits']['hits']]
